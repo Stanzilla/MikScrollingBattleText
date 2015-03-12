@@ -17,6 +17,8 @@ _G[modName] = mod
 local string_find = string.find
 local string_sub = string.sub
 local string_gsub = string.gsub
+local string_match = string.match
+local math_floor = math.floor
 local GetSpellInfo = GetSpellInfo
 
 
@@ -57,7 +59,8 @@ local string_reverse = string.reverse
 local SI_SUFFIXES = { "k", "M", "G", "T" }
 
 -- Use Blizzard localized value to separate numbers if available.
-local SEPARATOR_REPLACE_PATTERN = "%1" .. (LARGE_NUMBER_SEPERATOR or ",") .. "%2"
+--local SEPARATOR_REPLACE_PATTERN = "%1"..(LARGE_NUMBER_SEPERATOR or ",").."%2"
+local SEPARATOR_REPLACE_PATTERN = "%1"..LARGE_NUMBER_SEPERATOR and LARGE_NUMBER_SEPERATOR ~= "" or ",".."%2"
 
 
 -------------------------------------------------------------------------------
@@ -150,6 +153,15 @@ end
 -- locale's separator.
 -- ****************************************************************************
 local function SeparateNumber(number)
+  if (type(number) ~= "number") then number = tonumber(number) end
+  if (not number) then return 0 end
+
+  --number = ("%.0f"):format(math_floor(number + 0.5))
+  local left, num, right = string_match(number, "^([^%d]*%d)(%d+)(.-)$")
+  return left and left..(num:reverse():gsub("(%d%d%d)", SEPARATOR_REPLACE_PATTERN):reverse()) or number --..right
+end
+
+--[[local function SeparateNumber(number)
  if (type(number) ~= "number") then number = tonumber(number) end
  if (not number) then return 0 end
 
@@ -160,7 +172,7 @@ local function SeparateNumber(number)
    if (k==0) then break end
  end
  return formatted
-end
+end]]
 
 
 
